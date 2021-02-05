@@ -38,7 +38,7 @@ type GroupDeploymentSpec struct {
 
   Concurrency int `json:"concurrency"`
 
-  Order 
+  Order
 
   // Template lists deployments that will be created.
   Template []GroupDeploymentTemplate `json:"template"`
