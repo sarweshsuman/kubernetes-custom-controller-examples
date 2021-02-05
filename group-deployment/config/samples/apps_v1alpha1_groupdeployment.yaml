@@ -1,0 +1,7 @@
+apiVersion: apps.example/v1alpha1
+kind: GroupDeployment
+metadata:
+  name: groupdeployment-sample
+spec:
+  # Add fields here
+  foo: bar
