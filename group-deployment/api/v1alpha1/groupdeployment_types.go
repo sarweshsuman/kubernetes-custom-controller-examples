@@ -1,4 +1,4 @@
- /*
+/*
 
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,7 @@ limitations under the License.
 package v1alpha1
 
 import (
-  apps "k8s.io/api/apps/v1"
+	apps "k8s.io/api/apps/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -27,29 +27,43 @@ import (
 // GroupDeploymentSpec defines the desired state of GroupDeployment
 type GroupDeploymentSpec struct {
 
-  // Label selector for managing deployments.
-	Selector *metav1.LabelSeletcor `json:"selector"`
+	// Label selector for managing deployments.
+	// Not needed, name can be enough
+	// Selector *metav1.LabelSelector `json:"selector"`
 
 	// List of active deployments name.
-	ActiveDeployments []string `json:"activeDeployments"`
+	// +optional
+	ActiveDeployments []string `json:"activeDeployments,omitempty"`
 
-  // Common deployment strategy to use.
-  Strategy string `json:"strategy"`
+	// Common deployment strategy to use.
+	// If empty then fall back to
+	// each active deployment.
+	// +optional
+	Strategy string `json:"strategy,omitempty"`
 
-  Concurrency int `json:"concurrency"`
+	// Max concurrent deployment in parallel.
+	// Defaults to 1
+	// +optional
+	// +kubebuilder:default=1
+	Concurrency int `json:"concurrency,omitempty"`
 
-  Order
+	// define order in which deployments
+	// should be applied
+	// If empty then all deployments are
+	// until concurrency is hit.
+	// +optional
+	Order []string `json:"order,omitempty"`
 
-  // Template lists deployments that will be created.
-  Template []GroupDeploymentTemplate `json:"template"`
-
+	// Template lists deployments that will be created.
+	Items []GroupDeploymentTemplate `json:"items"`
 }
 
+// GroupDeploymentTemplate defines the deployment and name.
 type GroupDeploymentTemplate struct {
-	// Name of this deployment
+	// Name of this deployment.
 	Name string `json:"name"`
-	// Deployment Spec
-	Spec apps.Deployment `json:"spec"`
+	// Deployment.
+	Template apps.Deployment `json:"template"`
 }
 
 // GroupDeploymentStatus defines the observed state of GroupDeployment

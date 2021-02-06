@@ -20,6 +20,7 @@ import (
 	"context"
 
 	"github.com/go-logr/logr"
+	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -38,8 +39,25 @@ type GroupDeploymentReconciler struct {
 // +kubebuilder:rbac:groups=apps.example,resources=groupdeployments/status,verbs=get;update;patch
 
 func (r *GroupDeploymentReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	_ = context.Background()
-	_ = r.Log.WithValues("groupdeployment", req.NamespacedName)
+	ctx := context.Background()
+	log := r.Log.WithValues("groupdeployment", req.NamespacedName)
+
+	log.V(1).Info("Reconciling", "GroupDeployment", req)
+	log.V(1).Info("Reconciling", "GroupDeployment", req.Name)
+
+	/* Read the GroupDeployment Object with name req.Name */
+	var groupDeployment appsv1alpha1.GroupDeployment
+	if err := r.Get(ctx, req.NamespacedName, &groupDeployment); err != nil {
+		if errors.IsNotFound(err) {
+			log.Info("Deleted", "GroupDeployment", req)
+			return ctrl.Result{}, client.IgnoreNotFound(err)
+		} else {
+			log.Error(err, "unable to fetch GroupDeployment object.")
+		}
+		return ctrl.Result{}, err
+	}
+
+	log.V(1).Info("Found object", "Group Deployment", groupDeployment)
 
 	// your logic here
 
